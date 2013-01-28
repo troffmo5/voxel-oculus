@@ -1,0 +1,29 @@
+{
+    "name" : "voxel-oculus",
+    "version": "0.1.0",
+    "description" : "3D Side by Side stereo view to be used with the Oculus Rift",
+    "main" : "voxel-oculus.js",
+    "dependencies" : {
+      "voxel-engine": "0.3.6",
+    },
+    "devDependencies" : {
+      "browserify" : "~1.17.1"
+    },
+    "repository" : {
+      "type" : "git",
+      "url" : "git://github.com/troffmo5/voxel-oculus.git"
+    },
+    "homepage" : "https://github.com/troffmo5/voxel-oculus",
+    "keywords" : [
+        "voxel",
+        "game",
+        "webgl",
+        "three.js",
+        "oculus"
+    ],
+    "author" : {
+        "name" : "Luca Siciliano",
+        "email" : "lsiciliano@web.de"
+    },
+    "license" : "MIT"
+}
