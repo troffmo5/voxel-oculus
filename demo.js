@@ -1,13 +1,12 @@
 var createGame = require('voxel-engine')
 var voxel = require('voxel')
 var skin = require('minecraft-skin')
-var texturePath = require('painterly-textures')
 var oculus = require('./voxel-oculus')
 
 var game = createGame({
   generate: voxel.generator['Valley'],
   startingPosition: [185, 100, 0],
-  texturePath: texturePath,
+  texturePath: 'textures/',
   statsDisabled: true // not working :-(
 })
 
@@ -24,11 +23,11 @@ container.addEventListener('click', function() {
 // rotate camera left so it points at the characters
 game.controls.yawObject.rotation.y = 1.5
 
-var maxogden = skin(game.THREE, 'maxogden.png').createPlayerObject()
+var maxogden = skin(game.THREE, 'textures/maxogden.png').createPlayerObject()
 maxogden.position.set(0, 62, 20)
 game.scene.add(maxogden)
 
-var substack = skin(game.THREE, 'substack.png').createPlayerObject()
+var substack = skin(game.THREE, 'textures/substack.png').createPlayerObject()
 substack.position.set(0, 62, -20)
 game.scene.add(substack)
 

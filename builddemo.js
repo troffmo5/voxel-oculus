@@ -80743,11 +80743,7 @@ Skin.prototype.createPlayerObject = function(scene) {
 }
 });
 
-require.define("/node_modules/painterly-textures/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"painterly.js"}
-});
-
-require.define("/node_modules/painterly-textures/painterly.js",function(require,module,exports,__dirname,__filename,process,global){module.exports = './'+__dirname+'/textures/';
-
+require.define("/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {}
 });
 
 require.define("/voxel-oculus.js",function(require,module,exports,__dirname,__filename,process,global){module.exports = function (game, opts) {
@@ -80882,13 +80878,12 @@ require.define("/voxel-oculus.js",function(require,module,exports,__dirname,__fi
 require.define("/demo.js",function(require,module,exports,__dirname,__filename,process,global){var createGame = require('voxel-engine')
 var voxel = require('voxel')
 var skin = require('minecraft-skin')
-var texturePath = require('painterly-textures')
 var oculus = require('./voxel-oculus')
 
 var game = createGame({
   generate: voxel.generator['Valley'],
   startingPosition: [185, 100, 0],
-  texturePath: texturePath,
+  texturePath: 'textures/',
   statsDisabled: true // not working :-(
 })
 
@@ -80905,11 +80900,11 @@ container.addEventListener('click', function() {
 // rotate camera left so it points at the characters
 game.controls.yawObject.rotation.y = 1.5
 
-var maxogden = skin(game.THREE, 'maxogden.png').createPlayerObject()
+var maxogden = skin(game.THREE, 'textures/maxogden.png').createPlayerObject()
 maxogden.position.set(0, 62, 20)
 game.scene.add(maxogden)
 
-var substack = skin(game.THREE, 'substack.png').createPlayerObject()
+var substack = skin(game.THREE, 'textures/substack.png').createPlayerObject()
 substack.position.set(0, 62, -20)
 game.scene.add(substack)
 
@@ -80931,7 +80926,7 @@ function ctrlToggle (ev) { erase = !ev.ctrlKey }
 window.addEventListener('keyup', ctrlToggle)
 window.addEventListener('keydown', ctrlToggle)
 
-var effect = new oculus(game, {distortion: 0.0, separation: 5});
+var effect = new oculus(game, {distortion: 0.2, separation: 5});
 
 });
 require("/demo.js");
