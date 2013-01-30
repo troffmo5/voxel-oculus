@@ -81745,7 +81745,7 @@ var url = require('url')
 // default values
 var separation = 5
 var distortion = 0.2
-var aspectFactor = 0.5
+var aspectFactor = 1
 var parsedURL = url.parse(window.location.href, true)
 if (parsedURL.query) {
   if (parsedURL.query.separation !== undefined) separation = parsedURL.query.separation;
