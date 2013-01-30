@@ -4,10 +4,12 @@ module.exports = function (game, opts) {
 
 	this.separation = 10;
 	_distortion = 0.1;
+	this.aspectFactor = 1;
 
 	if (opts) {
 		if (opts.separation !== undefined) this.separation = opts.separation;
 		if (opts.distortion !== undefined) _distortion = opts.distortion;
+		if (opts.aspectFactor !== undefined) this.aspectFactor = opts.aspectFactor;
 	}
 
 	var _width, _height;
@@ -82,7 +84,6 @@ module.exports = function (game, opts) {
 	};
 
 	this.render = function ( scene, camera ) {
-		var aspectFactor = 0.50;
 		renderer.clear();
 		renderer.setClearColor(renderer.getClearColor());
 
@@ -90,7 +91,7 @@ module.exports = function (game, opts) {
 
 		// Render left
 		_cameraL.fov = camera.fov;
-		_cameraL.aspect = aspectFactor * camera.aspect;
+		_cameraL.aspect = camera.aspect / (2*this.aspectFactor);
 		_cameraL.near = camera.near;
 		_cameraL.far = camera.far;		
 		_cameraL.updateProjectionMatrix();

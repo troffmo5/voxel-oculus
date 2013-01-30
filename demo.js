@@ -2,6 +2,18 @@ var createGame = require('voxel-engine')
 var voxel = require('voxel')
 var skin = require('minecraft-skin')
 var oculus = require('./voxel-oculus')
+var url = require('url')
+
+// default values
+var separation = 5
+var distortion = 0.2
+var aspectFactor = 0.5
+var parsedURL = url.parse(window.location.href, true)
+if (parsedURL.query) {
+  if (parsedURL.query.separation !== undefined) separation = parsedURL.query.separation;
+  if (parsedURL.query.distortion !== undefined) distortion = parsedURL.query.distortion;
+  if (parsedURL.query.aspectFactor !== undefined) aspectFactor = parsedURL.query.aspectFactor;
+}
 
 var game = createGame({
   generate: voxel.generator['Valley'],
@@ -49,4 +61,4 @@ function ctrlToggle (ev) { erase = !ev.ctrlKey }
 window.addEventListener('keyup', ctrlToggle)
 window.addEventListener('keydown', ctrlToggle)
 
-var effect = new oculus(game, {distortion: 0.2, separation: 5});
+var effect = new oculus(game, {distortion: distortion, separation: separation, aspectFactor: aspectFactor});
