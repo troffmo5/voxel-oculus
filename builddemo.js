@@ -80751,29 +80751,26 @@ require.define("/voxel-oculus.js",function(require,module,exports,__dirname,__fi
 	var renderer = game.renderer;
 
 	this.separation = 10;
-	_distortion = 0.1;
+	this.distortion = 0.1;
 	this.aspectFactor = 1;
 
 	if (opts) {
 		if (opts.separation !== undefined) this.separation = opts.separation;
-		if (opts.distortion !== undefined) _distortion = opts.distortion;
+		if (opts.distortion !== undefined) this.distortion = opts.distortion;
 		if (opts.aspectFactor !== undefined) this.aspectFactor = opts.aspectFactor;
 	}
 
 	var _width, _height;
-	var _cameraL = new THREE.PerspectiveCamera();
-	_cameraL.matrixAutoUpdate = false;
-	_cameraL.target = new THREE.Vector3();
 
-	var _cameraR = new THREE.PerspectiveCamera();
-	_cameraR.matrixAutoUpdate = false;
-	_cameraR.target = new THREE.Vector3();
+	var _pCamera = new THREE.PerspectiveCamera();
+	_pCamera.matrixAutoUpdate = false;
+	_pCamera.target = new THREE.Vector3();
 
 	var _scene = new THREE.Scene();
 
-	var _camera = new THREE.OrthographicCamera( -1, 1, 1, -1, 1, 1000 );
-	_camera.position.z = 1;
-	_scene.add( _camera );
+	var _oCamera = new THREE.OrthographicCamera( -1, 1, 1, -1, 1, 1000 );
+	_oCamera.position.z = 1;
+	_scene.add( _oCamera );
 
 	// initialization
 	renderer.autoClear = false;
@@ -80783,7 +80780,7 @@ require.define("/voxel-oculus.js",function(require,module,exports,__dirname,__fi
 	var _material = new THREE.ShaderMaterial( {
 		uniforms: {
 			"tex": { type: "t", value: _renderTarget },
-			"c": { type: "f", value: _distortion }
+			"c": { type: "f", value: this.distortion }
 		},
 		vertexShader: [
 			"varying vec2 vUv;",
@@ -80793,6 +80790,9 @@ require.define("/voxel-oculus.js",function(require,module,exports,__dirname,__fi
 			"}"
 		].join("\n"),
 
+        // Formula used from the paper: "Applying and removing lens distortion in post production"
+        // by Gergely Vass , Tamás Perlaki
+		// http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.136.3745
 		fragmentShader: [
 			"uniform float c;",
 			"uniform sampler2D tex;",
@@ -80801,20 +80801,21 @@ require.define("/voxel-oculus.js",function(require,module,exports,__dirname,__fi
 			"{",
 			"	vec2 uv = vUv;",
 			"	vec2 vector = uv * 2.0 - 1.0;",
-			"	float factor = 1.0/(1.0+c);",
-			"	float vectorLen = length(vector);",
-			"	vec2 direction = vector / vectorLen;",
-			"	float newLen = vectorLen + c * pow(vectorLen,3.0);",
-			"	vec2 newVector = direction * newLen * factor;",
+			"   float factor = 1.0/(1.0+c);",
+			"   float vectorLen = length(vector);",
+			"   vec2 direction = vector / vectorLen;",
+			"   float newLen = vectorLen + c * pow(vectorLen,3.0);",
+			"   vec2 newVector = direction * newLen * factor;",
 			"	newVector = (newVector + 1.0) / 2.0;",
-			"	gl_FragColor = texture2D(tex, newVector);",
+			"	if (newVector.x < 0.0 || newVector.x > 1.0 || newVector.y < 0.0 || newVector.y > 1.0)",
+			"		gl_FragColor = vec4(0.0,0.0,0.0,1.0);",
+			"	else",
+			"   	gl_FragColor = texture2D(tex, newVector);",
 			"}"
 		].join("\n")
 	} );
 	var mesh = new THREE.Mesh( new THREE.PlaneGeometry( 2, 2 ), _material );
 	_scene.add( mesh );
-
-
 
 	this.setSize = function ( width, height ) {
 		_width = width / 2;
@@ -80826,49 +80827,41 @@ require.define("/voxel-oculus.js",function(require,module,exports,__dirname,__fi
 	};
 	this.setSize(game.width, game.height);
 
-
-	this.setDistortion = function(c) {
-		_material.uniforms['c'].value = c;
-	};
-
 	this.render = function ( scene, camera ) {
 		renderer.clear();
-		renderer.setClearColor(renderer.getClearColor());
+    	_material.uniforms['c'].value = this.distortion;
 
+		// camera parameters
 		if (camera.matrixAutoUpdate) camera.updateMatrix();
+		_pCamera.fov = camera.fov;
+		_pCamera.aspect = camera.aspect / (2*this.aspectFactor);
+		_pCamera.near = camera.near;
+		_pCamera.far = camera.far;		
+		_pCamera.updateProjectionMatrix();
+
 
 		// Render left
-		_cameraL.fov = camera.fov;
-		_cameraL.aspect = camera.aspect / (2*this.aspectFactor);
-		_cameraL.near = camera.near;
-		_cameraL.far = camera.far;		
-		_cameraL.updateProjectionMatrix();
 
 		var offset = new THREE.Vector3(-this.separation,0,0);
-		_cameraL.matrix.copy(camera.matrixWorld);
-		_cameraL.matrix.translate(offset);
-		_cameraL.matrixWorldNeedsUpdate = true;
+		_pCamera.matrix.copy(camera.matrixWorld);
+ 		_pCamera.matrix.translate(offset);
+ 		_pCamera.matrixWorldNeedsUpdate = true;
 
 		renderer.setViewport( 0, 0, _width, _height );
-
-		renderer.render( scene, _cameraL, _renderTarget, true );
-
-		renderer.render( _scene, _camera );
+		renderer.render( scene, _pCamera, _renderTarget, true );
+		renderer.render( _scene, _oCamera );
 
 		// Render right
-		_cameraR.near = camera.near;
-		_cameraR.far = camera.far;
-		_cameraR.projectionMatrix = _cameraL.projectionMatrix;
 
 		offset.set(this.separation,0,0);
-		_cameraR.matrix.copy(camera.matrixWorld);
-		_cameraR.matrix.translate(offset);
-		_cameraR.matrixWorldNeedsUpdate = true;
+		_pCamera.matrix.copy(camera.matrixWorld);
+		_pCamera.matrix.translate(offset);
+ 		_pCamera.matrixWorldNeedsUpdate = true;
 
 		renderer.setViewport( _width, 0, _width, _height );
-	 	renderer.render( scene, _cameraR, _renderTarget, true );
+    	renderer.render( scene, _pCamera, _renderTarget, true );
 
-		renderer.render( _scene, _camera );
+		renderer.render( _scene, _oCamera );
 	};
 
 	game.renderer = this;
