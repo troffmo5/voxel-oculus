@@ -1,6 +1,6 @@
 module.exports = function (game, opts) {
 	var THREE = game.THREE;
-	var renderer = game.renderer;
+	var renderer = game.view.renderer;
 
 	this.separation = 10;
 	this.distortion = 0.1;
@@ -116,5 +116,5 @@ module.exports = function (game, opts) {
 		renderer.render( _scene, _oCamera );
 	};
 
-	game.renderer = this;
+	game.view.renderer = this;
 };
