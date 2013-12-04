@@ -4,7 +4,7 @@
     "description" : "3D Side by Side stereo view to be used with the Oculus Rift",
     "main" : "voxel-oculus.js",
     "dependencies" : {
-      "voxel-engine": "0.3.6",
+      "voxel-engine": "0.3.6"
     },
     "devDependencies" : {
       "browserify" : "~1.17.1"
