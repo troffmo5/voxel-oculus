@@ -1,6 +1,6 @@
 module.exports = function (game, opts) {
 	var THREE = game.THREE;
-	var renderer = game.renderer;
+	var renderer = game.view.renderer;
 
 	this.separation = 10;
 	this.distortion = 0.1;
@@ -94,9 +94,8 @@ module.exports = function (game, opts) {
 
 		// Render left
 
-		var offset = new THREE.Vector3(-this.separation,0,0);
 		_pCamera.matrix.copy(camera.matrixWorld);
- 		_pCamera.matrix.translate(offset);
+		_pCamera.applyMatrix(new THREE.Matrix4().makeTranslation(-this.separation, 0, 0));
  		_pCamera.matrixWorldNeedsUpdate = true;
 
 		renderer.setViewport( 0, 0, _width, _height );
@@ -105,9 +104,8 @@ module.exports = function (game, opts) {
 
 		// Render right
 
-		offset.set(this.separation,0,0);
 		_pCamera.matrix.copy(camera.matrixWorld);
-		_pCamera.matrix.translate(offset);
+		_pCamera.applyMatrix(new THREE.Matrix4().makeTranslation(this.separation, 0, 0));
  		_pCamera.matrixWorldNeedsUpdate = true;
 
 		renderer.setViewport( _width, 0, _width, _height );
@@ -116,5 +114,5 @@ module.exports = function (game, opts) {
 		renderer.render( _scene, _oCamera );
 	};
 
-	game.renderer = this;
+	game.view.renderer = this;
 };
